@@ -7,23 +7,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 	"k8s.io/klog/v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"time"
 )
 
-func kubernetesCon() *rest.Config {
-	homeDir := homedir.HomeDir()
-	config, err := clientcmd.BuildConfigFromFlags("", homeDir+"/.kube/config")
-	if err != nil {
-		klog.Fatalf("Get kubeconfig error : %s", err.Error())
-	}
-	return config
-}
 func main() {
 
 	s := runtime.NewScheme()
@@ -37,7 +26,7 @@ func main() {
 	fmt.Println("获取gvk", objectKinds)
 	//return
 	//创建manager
-	mgr, err := manager.New(kubernetesCon(), manager.Options{
+	mgr, err := manager.New(kubernetesConfig(), manager.Options{
 		Logger: logf.Log.WithName("test"),
 	})
 	if err != nil {
