@@ -43,18 +43,22 @@ func main() {
 	}
 
 	//手动添加添加watch pod资源
+	h := &handler.TypedEnqueueRequestForObject[*corev1.Pod]{}
 	err = ctl.Watch(
-		source.Kind(mgr.GetCache(), &corev1.Pod{}, &handler.TypedEnqueueRequestForObject[*corev1.Pod]{}),
+		source.Kind(mgr.GetCache(), &corev1.Pod{}, h),
 	)
 	if err != nil {
 		klog.Fatalf(" add watch failed : %s", err.Error())
 	}
+
 	//交给manager一起启动
 	err = mgr.Add(ctl)
 	if err != nil {
 		klog.Fatalf(" add controller failed : %s", err.Error())
 	}
+
 	ctx := context.Background()
+	mgr.Add(lib.NewWeb(h, ctl))
 
 	err = mgr.Start(ctx)
 	if err != nil {
