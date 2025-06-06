@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -39,8 +42,10 @@ func main() {
 		klog.Fatalf(" make controller failed : %s", err.Error())
 	}
 
-	//添加watch
-	err = ctl.Watch(source.TypedSource())
+	//手动添加添加watch pod资源
+	err = ctl.Watch(
+		source.Kind(mgr.GetCache(), &corev1.Pod{}, &handler.TypedEnqueueRequestForObject[*corev1.Pod]{}),
+	)
 	if err != nil {
 		klog.Fatalf(" add watch failed : %s", err.Error())
 	}
