@@ -40,6 +40,7 @@ func main() {
 	})
 	if err != nil {
 		klog.Fatalf(" make controller failed : %s", err.Error())
+		return
 	}
 
 	//手动添加添加watch pod资源
@@ -58,7 +59,11 @@ func main() {
 	}
 
 	ctx := context.Background()
-	mgr.Add(lib.NewWeb(h, ctl))
+	//手动出发 reconcile
+	err = mgr.Add(lib.NewWeb(h, ctl))
+	if err != nil {
+		return
+	}
 
 	err = mgr.Start(ctx)
 	if err != nil {
