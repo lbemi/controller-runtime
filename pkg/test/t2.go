@@ -52,19 +52,13 @@ func main() {
 		klog.Fatalf(" add watch failed : %s", err.Error())
 	}
 
-	//交给manager一起启动
-	err = mgr.Add(ctl)
-	if err != nil {
-		klog.Fatalf(" add controller failed : %s", err.Error())
-	}
-
-	ctx := context.Background()
-	//手动出发 reconcile
+	// 手动出发 reconcile
 	err = mgr.Add(lib.NewWeb(h, ctl))
 	if err != nil {
 		return
 	}
 
+	ctx := context.Background()
 	err = mgr.Start(ctx)
 	if err != nil {
 		klog.Fatalf("start manager error : %s", err.Error())

@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -13,6 +16,15 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
+
+func kubernetesConfig() *rest.Config {
+	homeDir := homedir.HomeDir()
+	config, err := clientcmd.BuildConfigFromFlags("", homeDir+"/.kube/config")
+	if err != nil {
+		klog.Fatalf("Get kubeconfig error : %s", err.Error())
+	}
+	return config
+}
 
 func main() {
 

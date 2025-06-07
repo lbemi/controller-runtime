@@ -23,12 +23,18 @@ func NewWeb(e handler.TypedEventHandler[*v1.Pod, reconcile.Request], ctl control
 
 func (w *Web) Start(context.Context) error {
 	r := gin.New()
+
 	r.GET("/add", func(c *gin.Context) {
 		pod := &v1.Pod{}
 		pod.Name = "test-pod"
 		pod.Namespace = "default"
+		if _, ok := w.Ctl.(*cc.Controller[reconcile.Request]); !ok {
+			c.JSON(200, gin.H{"message": "error"})
+		}
+		// 手动出发  reconcile,添加事件
 		w.E.Create(
-			context.Background(), event.TypedCreateEvent[*v1.Pod]{Object: pod},
+			context.Background(),
+			event.TypedCreateEvent[*v1.Pod]{Object: pod},
 			w.Ctl.(*cc.Controller[reconcile.Request]).Queue,
 		)
 		c.JSON(200, gin.H{"message": "ok"})
